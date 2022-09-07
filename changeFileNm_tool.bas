@@ -1,9 +1,12 @@
+Option Explicit
+
 'select folder
 Sub FList_MST_toChangeNm()
     Dim F_Dig As FileDialog
     Dim FS As Scripting.FileSystemObject
     Dim F_Info As Folder
     Dim check As Integer
+    Dim check, row As Integer
 
     With Application
         .ScreenUpdating = False
@@ -44,8 +47,9 @@ Sub File_List_toChangeNm(F_Info As Folder)
     Dim fileName As String
     Dim f As File
     Dim sh As Worksheet
-    Dim fileListCount, targetFileCount, last_raw As Integer
+    Dim fileListCount, targetFileCount, last_raw, arrExt_Length As Integer
     Dim i As Long
+    Dim FileList, arrExt As Variant
 
     Call ClearContents
 
@@ -65,20 +69,18 @@ Sub File_List_toChangeNm(F_Info As Folder)
             last_raw = sh.Range("M" & Application.Rows.Count).End(xlUp).Row + 1
             sh.Range("M" & last_raw).Value = f.Name
         End If
-        Next
-        targetFileCount = sh.Range("N4")
+    Next f
+    targetFileCount = sh.Range("N4")
 
-        If flieListCount = 0 Then
-            Call AlertMessage(1, F_Info.Name)
-            Exit Sub
-        Else
-            If Not flieListCount = targetFileCount Then
-                Call AlertMessage(2, F_Info.Name)
-                Exit Sub
-            End If
-
-            Call Rename_files(sh, F_Info)
+    If flieListCount = 0 Then
+        Call AlertMessage(1, F_Info.Name)
+    Else
+        If Not flieListCount = targetFileCount Then
+            Call AlertMessage(2, F_Info.Name)
         End If
+
+        Call Rename_files(sh, F_Info)
+    End If
 End Sub
 
 Sub Rename_files(sh As Worksheet, F_Info As Folder)
@@ -106,11 +108,10 @@ Sub Rename_files(sh As Worksheet, F_Info As Folder)
         f.Name = new_name
 
  NextItem:
-        Next
+    Next f
 
-        MsgBox "[" & F_Info.Name & "]のフォルダに同じ名前のファイルが既に存在しています。確認してください。"
-        Call OpenExplorer(F_Info.Path)
-
+    MsgBox "[" & F_Info.Name & "]のファイル名を変更しました。"
+    Call OpenExplorer(F_Info.Path)
 End Sub
 
 Sub OpenExplorer(target As String)
@@ -126,14 +127,10 @@ End Sub
 
 Sub AlertMessage(flg As Integer, shtNm As String)
     If flg = 1 Then
-        fileCheck = MsgBox(prompt:="[" & shtNm & "]のフォルダからpicファイルを見付かりませんでした。", Buttons:=vbOKOnly)
-        If fileCheck = 1 Then
-            Exit Sub
-        End If
-    ElseIf flg = 2 Then
-        fileCheck = MsgBox(prompt:="[" & shtNm & "]のフォルダのファイル数を確認してください。", Buttons:=vbOKOnly)
-        If fileCheck = 1 Then
-            Exit Sub
-        End If
+        MsgBox "[" & shtNm & "]のフォルダからpicファイルを見付かりませんでした。"
+    End If
+
+    If flg = 2 Then
+        MsgBox "[" & shtNm & "]のフォルダのファイル数を確認してください。"
     End If
 End Sub
